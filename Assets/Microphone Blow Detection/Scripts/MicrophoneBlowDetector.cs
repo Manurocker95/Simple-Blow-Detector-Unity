@@ -407,16 +407,10 @@ namespace VirtualPhenix.MicrophoneBlowDetector
             if (IsBlowingTime(sumPitch))
             {
                 m_blowingTime += 1;
-
-                Debug.Log(sumPitch);
-                Debug.Log(m_lowPassResults);
             }
             else
             {
                 m_blowingTime = 0;
-
-                Debug.Log(sumPitch);
-                Debug.Log(m_lowPassResults);
             }
 
             // We update the blowing state so we can trigger animations/text or whatever

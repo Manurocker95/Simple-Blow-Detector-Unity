@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Microphone Blow Detection/Scenes/BlowDetection_Mixer.unity
     guid: f68c3775937f11841a6ac351c79b00c1
+  - enabled: 1
+    path: Assets/Microphone Blow Detection/Scenes/BlowDetection_NoSource.unity
+    guid: d19ad4c0baf4c18448ad202d6a919025
   m_configObjects: {}
