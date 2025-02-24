@@ -14,7 +14,8 @@ MicrophoneBlowDetectorDebugText script if you need an example).
 # Troubleshooting:
 
 This example has one big flaw: The microphone data is set to the audioSource clip to use audioSource.GetOutputData and audioSource.GetSpectrumData. This approach
-makes it "heardable", so you will need to play with AudioMixer DB values to not hear the recorded blow in-game.
+makes it "heardable", so you will need to play with AudioMixer DB values to not hear the recorded blow in-game. To partially "solve" this, MicrophoneBlowDetectorAudioMixer is 
+provided as an example of using AudioMixerGroup to "hide" that audio while still process it from AudioSource. 
 
 # Credits:
 This example is based on a ["lost" forum post](https://web.archive.org/web/20120122003213/http://forum.unity3d.com/threads/118215-Blow-detection-(Using-iOS-Microphone)?p=802891&viewfull=1#post802891) 
