@@ -18,6 +18,6 @@ makes it "heardable", so you will need to play with AudioMixer DB values to not 
 
 # Credits:
 This example is based on a ["lost" forum post](https://web.archive.org/web/20120122003213/http://forum.unity3d.com/threads/118215-Blow-detection-(Using-iOS-Microphone)?p=802891&viewfull=1#post802891) 
-and reworked for easy handle to modern Unity + C# praxis . Feel free to make any PR or modification you want.
+and reworked for easy handle to modern Unity + C# praxis, so credits to Riro, Soren and everyone that contributed to that post. Feel free to make any PR or modification you want.
 
 Credits are appreciated :)
