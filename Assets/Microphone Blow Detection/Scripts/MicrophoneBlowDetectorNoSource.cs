@@ -1,11 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace VirtualPhenix.MicrophoneBlowDetector
 {
     public class MicrophoneBlowDetectorNoSource : MicrophoneBlowDetector
     {
+        [Header("Debug No Source"),Space]
+        [SerializeField] protected float m_recordingStartTime;
+
         public override bool IsMicrophoneBlocked => !m_isMicrophoneInitialized || !m_clip || m_clip.length == 0 || m_initializingMicrophone;
 
         public override void SetClipToAudioSource(AudioClip _newClip, bool _playIt = true)
@@ -13,15 +17,42 @@ namespace VirtualPhenix.MicrophoneBlowDetector
             if (_newClip)
                 m_clip = _newClip;
         }
+        public override void InitializeMicrophone(int _idx = 0, UnityAction _onInitCallback = null)
+        {
+            if (m_initializingMicrophone)
+                return;
+
+            m_microphoneDevice = Microphone.devices[_idx];
+            m_clip = StartRecordingClipWithMicrophone();
+
+            m_coroutine = StartCoroutine(WaitForMicrophoneToGetData(() =>
+            {
+                m_recordingStartTime = Time.time;
+                m_isMicrophoneInitialized = true;
+                SetClipToAudioSource(m_clip);
+                _onInitCallback?.Invoke();
+            }));
+        }
+
+        protected override IEnumerator WaitForMicrophoneToGetData(UnityAction _callback)
+        {
+            m_initializingMicrophone = true;
+            while (m_clip == null || m_clip.length == 0)
+            {
+                yield return null;
+            }
+            m_initializingMicrophone = false;
+            _callback?.Invoke();
+        }
 
         protected override void AnalyzeSound()
         {
-            int micPosition = GetMicrophoneCurrentPosition();
+            var micPosition = (int)(((Time.time - m_recordingStartTime) * m_frequency) % m_clip.samples);
 
             int startPosition = micPosition - m_sampleCount;
             if (startPosition < 0)
                 startPosition += m_clip.samples;
-
+    
             m_clip.GetData(m_samples, startPosition);
 
             float sum = 0f;
@@ -74,6 +105,11 @@ namespace VirtualPhenix.MicrophoneBlowDetector
                 }
                 m_spectrum[k] = Mathf.Sqrt(real * real + imag * imag);
             }
+        }
+
+        protected override bool IsBlowingTime(float _sumPitch)
+        {
+            return m_lowPassResults > -30 && (_sumPitch < 10 || _sumPitch > 2000);
         }
     }
 }

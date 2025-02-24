@@ -219,7 +219,7 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         /// <summary>
         /// Initialize the microphone based on index and start recorting
         /// </summary>
-        public virtual void InitializeMicrophone(int _idx = 0)
+        public virtual void InitializeMicrophone(int _idx = 0, UnityAction _onInitCallback = null)
         {
             if (m_initializingMicrophone)
                 return;
@@ -233,6 +233,7 @@ namespace VirtualPhenix.MicrophoneBlowDetector
                 {
                     m_isMicrophoneInitialized = true;
                     SetClipToAudioSource(m_clip);
+                    _onInitCallback?.Invoke();
                 }
             }));
         }
@@ -403,13 +404,19 @@ namespace VirtualPhenix.MicrophoneBlowDetector
             m_lowPassResults = LowPassFilter(m_dbValue);
 
             // Decides whether this instance of the result could be a blow or not.
-            if (m_lowPassResults > -30 && sumPitch == 0)
+            if (IsBlowingTime(sumPitch))
             {
                 m_blowingTime += 1;
+
+                Debug.Log(sumPitch);
+                Debug.Log(m_lowPassResults);
             }
             else
             {
                 m_blowingTime = 0;
+
+                Debug.Log(sumPitch);
+                Debug.Log(m_lowPassResults);
             }
 
             // We update the blowing state so we can trigger animations/text or whatever
@@ -421,20 +428,25 @@ namespace VirtualPhenix.MicrophoneBlowDetector
             m_isBlowing = isBlowing;
         }
 
+        protected virtual bool IsBlowingTime(float _sumPitch)
+        {
+            return m_lowPassResults > -30 && _sumPitch == 0;
+        }
+
         /// <summary>
         /// Updates a record, by removing the oldest entry and adding the newest value (val).
         /// </summary>
         /// <param name="val"></param>
         /// <param name="record"></param>
 
-        protected virtual void UpdateRecords(float val, List<float> record)
+        protected virtual void UpdateRecords(float _val, List<float> _record)
         {
-            if (record.Count > m_recordedFramesLength)
+            if (_record.Count > m_recordedFramesLength)
             {
-                record.RemoveAt(0);
+                _record.RemoveAt(0);
             }
 
-            record.Add(val);
+            _record.Add(_val);
         }
 
         /// <summary>
@@ -443,9 +455,9 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         /// <param name="peakVolume"></param>
         /// <returns></returns>
 
-        protected virtual float LowPassFilter(float peakVolume)
+        protected virtual float LowPassFilter(float _peakVolume)
         {
-            return m_lowPassFilterAlpha * peakVolume + (1.0f - m_lowPassFilterAlpha) * m_lowPassResults;
+            return m_lowPassFilterAlpha * _peakVolume + (1.0f - m_lowPassFilterAlpha) * m_lowPassResults;
         }
 
         /// <summary>
