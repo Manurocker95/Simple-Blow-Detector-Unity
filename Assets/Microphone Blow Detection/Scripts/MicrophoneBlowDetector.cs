@@ -35,6 +35,10 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         /// Wether the microphone is already recording
         /// </summary>
         [SerializeField] protected bool m_isMicrophoneInitialized;
+        /// <summary>
+        /// Wether it tries to initialize continuously if it's not initialized
+        /// </summary>
+        [SerializeField] protected bool m_continuousInitializationTry;
 
         [Header("Filter Config"),Space]
         /// <summary>
@@ -91,16 +95,16 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         /// Wether the system consider the user is blowing or not. It happens when m_blowingTime is higher than m_requiredBlowTime 
         /// </summary>
         [SerializeField] protected bool m_isBlowing = false;
-        
+        /// <summary>
+        /// Flag to check if we are currently in the process of initialization
+        /// </summary>
+        [SerializeField] protected bool m_initializingMicrophone = false;
+
         [Header("Events"), Space]
         /// <summary>
         /// Event that triggers when m_isBlowing changes
         /// </summary>
         [SerializeField] protected UnityEvent<bool> m_onBlowingStateChange;
-        /// <summary>
-        /// Flag to check if we are currently in the process of initialization
-        /// </summary>
-        protected bool m_initializingMicrophone;
         /// <summary>
         /// Volume in RMS
         /// </summary>
@@ -191,6 +195,8 @@ namespace VirtualPhenix.MicrophoneBlowDetector
             {
                 StopCoroutine(m_coroutine);
             }
+
+            EndRecording();
         }
 
         protected virtual void InitializeDetector()
@@ -219,7 +225,7 @@ namespace VirtualPhenix.MicrophoneBlowDetector
                 return;
 
             m_microphoneDevice = Microphone.devices[_idx];
-            m_clip = Microphone.Start(m_microphoneDevice, true, m_microphoneRecordTime, m_useDefaultSettingsAsFrequency ? GetDefaultFrequency() : m_frequency);
+            m_clip = StartRecordingClipWithMicrophone();
 
             m_coroutine = StartCoroutine(WaitForMicrophoneToGetData(() =>
             {
@@ -232,6 +238,35 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         }
 
         /// <summary>
+        /// Start recording based on the values we set on inspector to save it in m_clip variable
+        /// </summary>
+        /// <returns></returns>
+        protected virtual AudioClip StartRecordingClipWithMicrophone()
+        {
+            return Microphone.Start(m_microphoneDevice, true, m_microphoneRecordTime, m_useDefaultSettingsAsFrequency ? GetDefaultFrequency() : m_frequency); 
+        }
+
+        /// <summary>
+        /// Obtain the current position in samples of recording for the device we desire
+        /// </summary>
+        /// <returns></returns>
+        public virtual int GetMicrophoneCurrentPosition()
+        {
+            return Microphone.GetPosition(m_microphoneDevice);
+        }
+
+        /// <summary>
+        /// End recording for m_microphoneDevice
+        /// </summary>
+        public virtual void EndRecording()
+        {
+            if (Microphone.IsRecording(m_microphoneDevice))
+            {
+                Microphone.End(m_microphoneDevice);
+            }
+        }
+
+        /// <summary>
         /// Coroutine to initialize the microphone async
         /// </summary>
         /// <param name="_callback"></param>
@@ -239,7 +274,7 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         protected virtual IEnumerator WaitForMicrophoneToGetData(UnityAction _callback)
         {
             m_initializingMicrophone = true;
-            while (!(Microphone.GetPosition(m_microphoneDevice) > 0))
+            while (GetMicrophoneCurrentPosition() == 0)
             {
                 yield return null;
             }
@@ -256,7 +291,7 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         {
             if (m_audioSource && _newClip)
             {
-                m_audioSource.clip = m_clip;
+                m_audioSource.clip = _newClip;
                 m_audioSource.Play();
             }
         }
@@ -267,6 +302,11 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         {
             if (IsMicrophoneBlocked)
             {
+                if (!m_initializingMicrophone && m_continuousInitializationTry)
+                {
+                    InitializeMicrophone();
+                }
+
                 return;
             }
 

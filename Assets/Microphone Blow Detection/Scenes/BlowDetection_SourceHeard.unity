@@ -648,11 +648,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53c438cb1440bd74599e18148b47a5f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_initMicrophoneOnStart: 1
+  m_useDefaultSettingsAsFrequency: 1
   m_microphoneIndex: 0
   m_microphoneDevice: 
-  m_isMicrophoneInitialized: 0
-  m_initMicrophoneOnStart: 1
   m_microphoneRecordTime: 60
+  m_isMicrophoneInitialized: 0
+  m_continuousInitializationTry: 1
   m_frequency: 48000
   m_sampleCount: 1024
   m_amplitudeThreshold: 0.2
@@ -665,6 +667,7 @@ MonoBehaviour:
   m_audioSource: {fileID: 1919806838}
   m_blowingTime: 0
   m_isBlowing: 0
+  m_initializingMicrophone: 0
   m_onBlowingStateChange:
     m_PersistentCalls:
       m_Calls: []

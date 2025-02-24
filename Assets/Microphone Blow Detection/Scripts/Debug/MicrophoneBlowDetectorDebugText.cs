@@ -17,7 +17,7 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         /// <summary>
         /// Index in Microphone.devices array
         /// </summary>
-        [SerializeField] protected TMP_Text m_debugText;
+        [SerializeField] private TMP_Text m_debugText;
 
         private void Reset()
         {
@@ -35,6 +35,8 @@ namespace VirtualPhenix.MicrophoneBlowDetector
 
             if (!m_debugText)
                 m_debugText = GetComponent<TMP_Text>();
+
+            UpdateDebugText(false);
 
             StartListening();
         }
