@@ -12,6 +12,14 @@ namespace VirtualPhenix.MicrophoneBlowDetector
     {
         [Header("Microphone"), Space]
         /// <summary>
+        /// Wether we need to initialize the microphone on start to record audio
+        /// </summary>
+        [SerializeField] protected bool m_initMicrophoneOnStart = true;
+        /// <summary>
+        /// If set to false, m_frequency won't be overriden with GetDefaultFrequency() 
+        /// </summary>
+        [SerializeField] protected bool m_useDefaultSettingsAsFrequency = true;
+        /// <summary>
         /// Index in Microphone.devices array
         /// </summary>
         [SerializeField] protected int m_microphoneIndex = 0;
@@ -20,17 +28,13 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         /// </summary>
         [SerializeField] protected string m_microphoneDevice;
         /// <summary>
-        /// Wether the microphone is already recording
-        /// </summary>
-        [SerializeField] protected bool m_isMicrophoneInitialized;
-        /// <summary>
-        /// Wether we need to initialize the microphone on start to record audio
-        /// </summary>
-        [SerializeField] protected bool m_initMicrophoneOnStart = true;
-        /// <summary>
         /// How many seconds you want to record (in-loop). Take into account this will be placed into RAM memory.
         /// </summary>
         [SerializeField] protected int m_microphoneRecordTime = 60;
+        /// <summary>
+        /// Wether the microphone is already recording
+        /// </summary>
+        [SerializeField] protected bool m_isMicrophoneInitialized;
 
         [Header("Filter Config"),Space]
         /// <summary>
@@ -152,24 +156,26 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         public virtual bool IsBlowing => m_isBlowing;
 
         /// <summary>
-        /// Initialization 
+        /// We try to recover the audioSource reference on attach/reset
+        /// </summary>
+        protected virtual void Reset()
+        {
+            transform.TryGetComponent(out m_audioSource);
+        }
+
+        /// <summary>
+        /// Detector initialization
+        /// </summary>
+        protected virtual void Awake()
+        {
+            InitializeDetector();
+        }
+
+        /// <summary>
+        /// Microphone Initialization if possible
         /// </summary>
         protected virtual void Start()
         {
-            // Initialize sample array
-            m_samples = new float[m_sampleCount];
-            m_spectrum = new float[m_sampleCount];
-            m_dbValues = new List<float>();
-            m_pitchValues = new List<float>();
-
-            m_initializingMicrophone = false;
-            m_isMicrophoneInitialized = false;
-
-            if (!m_audioSource)
-            {
-                transform.TryGetComponent(out m_audioSource);
-            }
-
             if (m_initMicrophoneOnStart)
             {
                 InitializeMicrophone(m_microphoneIndex);
@@ -187,6 +193,22 @@ namespace VirtualPhenix.MicrophoneBlowDetector
             }
         }
 
+        protected virtual void InitializeDetector()
+        {
+            // Initialize sample array
+            m_samples = new float[m_sampleCount];
+            m_spectrum = new float[m_sampleCount];
+            m_dbValues = new List<float>();
+            m_pitchValues = new List<float>();
+
+            m_initializingMicrophone = false;
+            m_isMicrophoneInitialized = false;
+
+            if (!m_audioSource)
+            {
+                transform.TryGetComponent(out m_audioSource);
+            }
+        }
 
         /// <summary>
         /// Initialize the microphone based on index and start recorting
@@ -197,7 +219,7 @@ namespace VirtualPhenix.MicrophoneBlowDetector
                 return;
 
             m_microphoneDevice = Microphone.devices[_idx];
-            m_clip = Microphone.Start(m_microphoneDevice, true, m_microphoneRecordTime, m_frequency);
+            m_clip = Microphone.Start(m_microphoneDevice, true, m_microphoneRecordTime, m_useDefaultSettingsAsFrequency ? GetDefaultFrequency() : m_frequency);
 
             m_coroutine = StartCoroutine(WaitForMicrophoneToGetData(() =>
             {
@@ -390,7 +412,7 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         /// Get specific platform frequency to analyze the recorded clip. On iOS is 24000Hz.
         /// </summary>
         /// <returns></returns>
-        protected virtual float GetDefaultFrequency()
+        protected virtual int GetDefaultFrequency()
         {
             return AudioSettings.outputSampleRate;
         }

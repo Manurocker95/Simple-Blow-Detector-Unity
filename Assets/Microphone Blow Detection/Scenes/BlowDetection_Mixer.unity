@@ -337,7 +337,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ce2b4c6a0e7d5941940f12a8e75daa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_detector: {fileID: 1919806836}
+  m_detector: {fileID: 0}
   m_debugText: {fileID: 496244352}
 --- !u!1 &537574732
 GameObject:
@@ -627,7 +627,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1919806837}
-  - component: {fileID: 1919806836}
+  - component: {fileID: 1919806839}
   - component: {fileID: 1919806838}
   m_Layer: 0
   m_Name: MicDetector
@@ -636,38 +636,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1919806836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1919806835}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53c438cb1440bd74599e18148b47a5f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_microphoneIndex: 0
-  m_microphoneDevice: 
-  m_isMicrophoneInitialized: 0
-  m_initMicrophoneOnStart: 1
-  m_microphoneRecordTime: 60
-  m_frequency: 48000
-  m_sampleCount: 1024
-  m_amplitudeThreshold: 0.2
-  m_refValue: 0.1
-  m_clampDB: 160
-  m_amplitudePitch: 0.02
-  m_lowPassFilterAlpha: 0.05
-  m_recordedFramesLength: 50
-  m_blowTimeThreshold: 4
-  m_audioSource: {fileID: 1919806838}
-  m_blowingTime: 0
-  m_isBlowing: 0
-  m_onBlowingStateChange:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!4 &1919806837
 Transform:
   m_ObjectHideFlags: 0
@@ -692,7 +660,7 @@ AudioSource:
   m_GameObject: {fileID: 1919806835}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: ae0f60c3ebde2af47af61749c3c07136, type: 2}
+  OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -779,6 +747,40 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1919806839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1919806835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7af6182b867b6cf49916660abf32dfdb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_microphoneIndex: 0
+  m_microphoneDevice: 
+  m_isMicrophoneInitialized: 0
+  m_initMicrophoneOnStart: 1
+  m_useDefaultSettingsAsFrequency: 0
+  m_microphoneRecordTime: 60
+  m_frequency: 48000
+  m_sampleCount: 1024
+  m_amplitudeThreshold: 0.2
+  m_refValue: 0.1
+  m_clampDB: 160
+  m_amplitudePitch: 0.02
+  m_lowPassFilterAlpha: 0.05
+  m_recordedFramesLength: 50
+  m_blowTimeThreshold: 4
+  m_audioSource: {fileID: 1919806838}
+  m_blowingTime: 0
+  m_isBlowing: 0
+  m_onBlowingStateChange:
+    m_PersistentCalls:
+      m_Calls: []
+  m_mixerGroup: {fileID: -8496132281228167747, guid: ae0f60c3ebde2af47af61749c3c07136, type: 2}
 --- !u!1 &1966486180
 GameObject:
   m_ObjectHideFlags: 0
