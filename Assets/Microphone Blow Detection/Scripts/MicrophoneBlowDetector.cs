@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -29,6 +27,10 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         /// Wether we need to initialize the microphone on start to record audio
         /// </summary>
         [SerializeField] protected bool m_initMicrophoneOnStart = true;
+        /// <summary>
+        /// How many seconds you want to record (in-loop). Take into account this will be placed into RAM memory.
+        /// </summary>
+        [SerializeField] protected int m_microphoneRecordTime = 60;
 
         [Header("Filter Config"),Space]
         /// <summary>
@@ -195,7 +197,7 @@ namespace VirtualPhenix.MicrophoneBlowDetector
                 return;
 
             m_microphoneDevice = Microphone.devices[_idx];
-            m_clip = Microphone.Start(m_microphoneDevice, true, 999, m_frequency);
+            m_clip = Microphone.Start(m_microphoneDevice, true, m_microphoneRecordTime, m_frequency);
 
             m_coroutine = StartCoroutine(WaitForMicrophoneToGetData(() =>
             {
@@ -268,7 +270,6 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         /// </summary>
         protected virtual void AnalyzeSound()
         {
-
             // Get all of our samples from the mic.
             m_audioSource.GetOutputData(m_samples, 0);
 
@@ -315,7 +316,7 @@ namespace VirtualPhenix.MicrophoneBlowDetector
             }
 
             // Convert index to frequency
-            m_pitchValue = freqN * (24000) / m_sampleCount;
+            m_pitchValue = freqN * (GetDefaultFrequency()) / m_sampleCount;
         }
 
         /// <summary>
@@ -383,7 +384,15 @@ namespace VirtualPhenix.MicrophoneBlowDetector
         protected virtual float LowPassFilter(float peakVolume)
         {
             return m_lowPassFilterAlpha * peakVolume + (1.0f - m_lowPassFilterAlpha) * m_lowPassResults;
+        }
 
+        /// <summary>
+        /// Get specific platform frequency to analyze the recorded clip. On iOS is 24000Hz.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual float GetDefaultFrequency()
+        {
+            return AudioSettings.outputSampleRate;
         }
     }
 }
